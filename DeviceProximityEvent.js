@@ -2,9 +2,9 @@
 This is an implementation of "Proximity Events":
 http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/Overview.html
 
-Public Domain Software 
-To the extent possible under law, Marcos Caceres has waived all copyright and 
-related or neighboring rights to DeviceProximityEvent Implementation. 
+Public Domain Software
+To the extent possible under law, Marcos Caceres has waived all copyright and
+related or neighboring rights to DeviceProximityEvent Implementation.
 
 This program implements the following intefaces:
 
@@ -76,8 +76,8 @@ dictionary DeviceProximityEventInit : EventInit {
             });
             //create the min attribute
             props = {
-                get: function () {
-                    return dict.min
+                get: function() {
+                    return dict.min;
                 },
                 enumerable: true,
                 configurable: true
@@ -86,8 +86,8 @@ dictionary DeviceProximityEventInit : EventInit {
 
             //create the max attribute
             props = {
-                get: function () {
-                    return dict.max
+                get: function() {
+                    return dict.max;
                 },
                 enumerable: true,
                 configurable: true
@@ -96,8 +96,8 @@ dictionary DeviceProximityEventInit : EventInit {
 
             //create the value attribute
             props = {
-                get: function () {
-                    return dict.value
+                get: function() {
+                    return dict.value;
                 },
                 enumerable: true,
                 configurable: true
@@ -216,5 +216,7 @@ dictionary DeviceProximityEventInit : EventInit {
         return 5.0;
     }, get value() {
         return Math.round(this.max * Math.random());
+    }, get near() {
+        return Boolean(this.value);
     }
 });

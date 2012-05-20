@@ -2,11 +2,11 @@
 Implementation of "User Proximity"
 http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/userproximity.html
 
-Public Domain Software 
-To the extent possible under law, Marcos Caceres has waived all copyright and 
+Public Domain Software
+To the extent possible under law, Marcos Caceres has waived all copyright and
 related or neighboring rights to DeviceProximityEvent Implementation.
 
-This program implements the following intefaces: 
+This program implements the following intefaces:
 
 [Constructor (DOMString type, optional UserProximityEventInit eventInitDict)]
 interface UserProximityEvent : Event {
@@ -166,10 +166,16 @@ dictionary UserProximityEventInit : EventInit {
     function UserProximityEvent() {
 
     }
-})(this, 
-   //fake user proximity sensor
-   {
-    near: function() {
-        return Boolean(Math.round(Math.random()));
+})(this,
+//fake user proximity sensor
+{
+    get min() {
+        return 0.2;
+    }, get max() {
+        return 5.0;
+    }, get value() {
+        return Math.round(this.max * Math.random());
+    }, get near() {
+        return Boolean(this.value);
     }
 });

@@ -1,24 +1,24 @@
 /**
-This is an implementation of "Proximity Events":
-http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/Overview.html
-
-Public Domain Software
-To the extent possible under law, Marcos Caceres has waived all copyright and
-related or neighboring rights to DeviceProximityEvent Implementation.
-
-This program implements the following intefaces:
-
-[Constructor (DOMString type, optional DeviceProximityEventInit eventInitDict)]
-interface DeviceProximityEvent : Event {
-    readonly attribute double value;
-    readonly attribute double min;
-    readonly attribute double max;
-};
-dictionary DeviceProximityEventInit : EventInit {
-    double value;
-    double min;
-    double max;
-};
+* This is an implementation of "Proximity Events":
+* http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/Overview.html
+* 
+* Public Domain Software
+* To the extent possible under law, Marcos Caceres has waived all copyright and
+* related or neighboring rights to DeviceProximityEvent Implementation.
+* 
+* This program implements the following intefaces:
+* 
+* [Constructor (DOMString type, optional DeviceProximityEventInit eventInitDict)]
+* interface DeviceProximityEvent : Event {
+*     readonly attribute double value;
+*     readonly attribute double min;
+*     readonly attribute double max;
+* };
+* dictionary DeviceProximityEventInit : EventInit {
+*     double value;
+*     double min;
+*     double max;
+* };
 **/
 (function implementDeviceProximityEvent(globalObject, sensor) {
     'use strict';
@@ -42,7 +42,7 @@ dictionary DeviceProximityEventInit : EventInit {
             converters.bubbles = toBool;
             converters.cancelable = toBool;
 
-            if (type === undefined || type === null) {
+            if (arguments.length === 0) {
                 throw new TypeError('Not Enough Arguments');
             }
 
@@ -70,10 +70,7 @@ dictionary DeviceProximityEventInit : EventInit {
             max = dict.max;
             value = dict.value;
 
-            this.prototype = new Event(type, {
-                bubbles: dict.bubbles,
-                cancelable: dict.cancelable
-            });
+            this.initEvent(typeString, dict.bubbles, dict.cancelable);
             //create the min attribute
             props = {
                 get: function() {

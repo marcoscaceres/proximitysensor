@@ -1,20 +1,20 @@
 /**
-Implementation of "User Proximity"
-http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/userproximity.html
-
-Public Domain Software
-To the extent possible under law, Marcos Caceres has waived all copyright and
-related or neighboring rights to DeviceProximityEvent Implementation.
-
-This program implements the following intefaces:
-
-[Constructor (DOMString type, optional UserProximityEventInit eventInitDict)]
-interface UserProximityEvent : Event {
-    readonly attribute boolean near;
-};
-dictionary UserProximityEventInit : EventInit {
-    boolean near;
-};
+* Implementation of "User Proximity"
+* http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/userproximity.html
+* 
+* Public Domain Software
+* To the extent possible under law, Marcos Caceres has waived all copyright and
+* related or neighboring rights to DeviceProximityEvent Implementation.
+* 
+* This program implements the following intefaces:
+* 
+* [Constructor (DOMString type, optional UserProximityEventInit eventInitDict)]
+* interface UserProximityEvent : Event {
+*     readonly attribute boolean near;
+* };
+* dictionary UserProximityEventInit : EventInit {
+*     boolean near;
+* };
 **/
 (function implementUserProximityEvent(globalObject, sensor) {
     var props,
@@ -33,7 +33,7 @@ dictionary UserProximityEventInit : EventInit {
             converters.bubbles = toBool;
             converters.cancelable = toBool;
 
-            if (type === undefined || type === null) {
+            if (arguments.length === 0) {
                 throw new TypeError('Not Enough Arguments');
             }
 
@@ -71,6 +71,9 @@ dictionary UserProximityEventInit : EventInit {
                 bubbles: dict.bubbles,
                 cancelable: dict.cancelable
             });
+
+            //initialize the Event
+            this.initEvent(typeString, dict.bubbles, dict.cancelable);
 
             //WebIDL ECMAScript to WebIDL boolean
             function toBool(value) {

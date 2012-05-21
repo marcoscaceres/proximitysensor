@@ -1,63 +1,57 @@
 /**
-* This is an implementation of "Proximity Events":
-* http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/Overview.html
-* 
-* Public Domain Software
-* To the extent possible under law, Marcos Caceres has waived all copyright and
-* related or neighboring rights to DeviceProximityEvent Implementation.
-* 
-* This program implements the following intefaces:
-* 
-* [Constructor (DOMString type, optional DeviceProximityEventInit eventInitDict)]
-* interface DeviceProximityEvent : Event {
-*     readonly attribute double value;
-*     readonly attribute double min;
-*     readonly attribute double max;
-* };
-* dictionary DeviceProximityEventInit : EventInit {
-*     double value;
-*     double min;
-*     double max;
-* };
-**/
-(function implementDeviceProximityEvent(globalObject, sensor) {
+ * This is an implementation of "Proximity Events":
+ * http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/Overview.html
+ *
+ * Public Domain Software
+ * To the extent possible under law, Marcos Caceres has waived all copyright and
+ * related or neighboring rights to DeviceProximityEvent Implementation.
+ *
+ * This program implements the following intefaces:
+ *
+ * [Constructor (DOMString type, optional DeviceProximityEventInit eventInitDict)]
+ * interface DeviceProximityEvent : Event {
+ *     readonly attribute double value;
+ *     readonly attribute double min;
+ *     readonly attribute double max;
+ * };
+ * dictionary DeviceProximityEventInit : EventInit {
+ *     double value;
+ *     double min;
+ *     double max;
+ * };
+ **/ (function implementDeviceProximityEvent(globalObject, sensor) {
     'use strict';
     var min, max, value, props, iProtoObj,
     //interface object + constructor
-    iObj = function DeviceProximityEvent(type, eventInitDict) {
-            var typeString = String(type),
+        iObj = function DeviceProximityEvent(type, eventInitDict) {
+            if (arguments.length === 0) {
+                throw new TypeError('Not Enough Arguments');
+            }
+            var props,
                 converters = Object.create({}),
-                props,
-                eventProto = Object.getPrototypeOf(Object.getPrototypeOf(this)),
                 dict = {
                     value: sensor.value || +Infinity,
                     max: sensor.max || +Infinity,
                     min: sensor.min || -Infinity,
                     cancelable: false,
                     bubbles: true
-                };
+                },
+                //We can't use Event.call to inherit properly,
+                //so we have to have a private event instead :(
+                event = new Event(String(type));
 
             //ECMAScript to WebIDL converters
-            converters.min = toDouble;
-            converters.max = toDouble;
-            converters.value = toDouble;
-            converters.bubbles = toBool;
-            converters.cancelable = toBool;
+            converters.value = converters.min = converters.max = toDouble;
+            converters.cancelable = converters.bubbles = toBool;
 
-            if (arguments.length === 0) {
-                throw new TypeError('Not Enough Arguments');
-            }
-
-            //process eventInitDict if it was passed
-            if (eventInitDict) {
-                if (Type(eventInitDict) !== 'object') {
-                    throw new TypeError('wrong argument');
-                }
-
+            //process eventInitDict if it was passed, overriding 'dict'
+            if (arguments.length === 2) {
+                eventInitDict = Object(eventInitDict); 
                 for (var key in eventInitDict) {
                     if (dict.hasOwnProperty(key)) {
-                        var converter = converters[key],
-                            value, idlValue;
+                        var value, 
+                            idlValue,
+                            converter = converters[key];
 
                         if (HasProperty(eventInitDict, key)) {
                             value = eventInitDict[key];
@@ -68,12 +62,31 @@
                 }
             }
 
-            Object.defineProperty(this, "timeStamp", {value: Date.now() }) ;
-            this.initEvent(typeString, dict.bubbles, dict.cancelable);
+            //initialize the underlying event
+            event.initEvent(String(type), dict.bubbles, dict.cancelable);
+            copyEventProps(this); 
 
+            //copy underlying properties to this object
+            function copyEventProps(obj){
+                var propName, 
+                    propDesc,
+                    propNames = Object.getOwnPropertyNames(event);
+                for(var i = 0; i < propNames.length; i++ ){
+                    propName = propNames[i];
+                    propDesc = Object.getOwnPropertyDescriptor(event , propName);
+                    delete propDesc.value;
+                    delete propDesc.writable; 
+                    propDesc.get = (function(p,e){
+                        return function(){
+                            return e[p];
+                        }    
+                    })(propName,event)
+                    Object.defineProperty(obj, propName, propDesc);
+                }
+            }
             //create the min attribute
             props = {
-                get: function() {
+                get: function () {
                     return dict.min;
                 },
                 enumerable: true,
@@ -83,7 +96,7 @@
 
             //create the max attribute
             props = {
-                get: function() {
+                get: function () {
                     return dict.max;
                 },
                 enumerable: true,
@@ -93,7 +106,7 @@
 
             //create the value attribute
             props = {
-                get: function() {
+                get: function () {
                     return dict.value;
                 },
                 enumerable: true,
@@ -164,11 +177,23 @@
     //Set up prototype for iterface
     DeviceProximityEvent.prototype = new Event('');
     props = {
-        writable: false,
+        writable: true,
         enumerable: false,
         configurable: false
     };
     Object.defineProperty(DeviceProximityEvent, 'prototype', props);
+
+    //Define toString method, as per WebIDL
+    props = {
+        writable: true,
+        enumerable: false,
+        configurable: true,
+        value: function toString() {
+            return "[object DeviceProximityEvent]"
+        }
+    };
+    Object.defineProperty(DeviceProximityEvent.prototype, 'toString', props);
+
     iProtoObj = new DeviceProximityEvent();
 
     //set up the prototype object's constructor
@@ -189,8 +214,6 @@
     };
     Object.defineProperty(iObj, 'prototype', props);
 
-
-
     //Add DeviceProximityEvent to global object (i.e., to Window)
     props = {
         writable: true,
@@ -199,6 +222,17 @@
         value: iObj
     };
     Object.defineProperty(globalObject, 'DeviceProximityEvent', props);
+
+    //redefine toString() for interface object
+    props = {
+        writable: true,
+        enumerable: false,
+        configurable: true,
+        value: function toString() {
+            return "function DeviceProximityEvent() { [native code] }"
+        }
+    };
+    Object.defineProperty(iObj, "toString", props);
 
     //Interface Prototype Object
     function DeviceProximityEvent() {

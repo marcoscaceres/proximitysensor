@@ -4,7 +4,7 @@
 * 
 * Public Domain Software
 * To the extent possible under law, Marcos Caceres has waived all copyright and
-* related or neighboring rights to DeviceProximityEvent Implementation.
+* related or neighboring rights to UserProximityEvent Implementation.
 * 
 * This program implements the following intefaces:
 * 
@@ -18,31 +18,31 @@
 **/
 (function implementUserProximityEvent(globalObject, sensor) {
     var props,
-        iProtoObj,
+        selfRef = this;
+        //Interface Object, as per WebIDL
         iObj = function UserProximityEvent(type, eventInitDict) {
-            var typeString = String(type),
+            if (arguments.length === 0) {
+                throw new TypeError('Not Enough Arguments');
+            }
+
+            var props,
                 converters = Object.create(null),
                 dict = {
-                    near: sensor.near(),
+                    near: sensor.near,
                     cancelable: false,
                     bubbles: true
-                };
+                },
+                event = new Event(String(type));
 
             //ECMAScript to WebIDL converters
             converters.near = toBool;
             converters.bubbles = toBool;
             converters.cancelable = toBool;
 
-            if (arguments.length === 0) {
-                throw new TypeError('Not Enough Arguments');
-            }
-
+           
             //process eventInitDict if it was passed, overriding 'dict'
-            if (eventInitDict) {
-                if (Type(eventInitDict) !== 'object') {
-                    throw new TypeError('wrong argument');
-                }
-
+            if (arguments.length === 2) {
+                eventInitDict = Object(eventInitDict); 
                 for (var key in eventInitDict) {
                     if (dict.hasOwnProperty(key)) {
                         var converter = converters[key],
@@ -67,13 +67,29 @@
             };
             Object.defineProperty(this, 'near', props);
 
-            this.prototype = new Event(type, {
-                bubbles: dict.bubbles,
-                cancelable: dict.cancelable
-            });
+            //initialize the internal Event
+            event.initEvent(String(type), dict.bubbles, dict.cancelable);
+            copyEventProps(this); 
 
-            //initialize the Event
-            this.initEvent(typeString, dict.bubbles, dict.cancelable);
+
+            //copy underlying properties to this object
+            function copyEventProps(obj){
+                var name, 
+                    propDesc,
+                    propNames = Object.getOwnPropertyNames(event);
+                for(var i = 0; i < propNames.length; i++ ){
+                    name = propNames[i];
+                    propDesc = Object.getOwnPropertyDescriptor(event , name);
+                    delete propDesc.value;
+                    delete propDesc.writable; 
+                    propDesc.get = (function(prop,event){
+                        return function(){
+                            return event[prop];
+                        }    
+                    })(name,event)
+                    Object.defineProperty(obj, name, propDesc);
+                }
+            }
 
             //WebIDL ECMAScript to WebIDL boolean
             function toBool(value) {
@@ -137,6 +153,17 @@
     };
     Object.defineProperty(UserProximityEvent, 'prototype', props);
 
+    //Define toString method, as per WebIDL
+    props = {
+        writable: true,
+        enumerable: false,
+        configurable: true,
+        value: function toString() {
+            return "[object UserProximityEvent]"
+        }
+    };
+    Object.defineProperty(UserProximityEvent.prototype, 'toString', props);
+
     //set up the prototype object's constructor
     UserProximityEvent.constructor = iObj;
     props = {
@@ -145,7 +172,6 @@
         configurable: true
     };
     Object.defineProperty(UserProximityEvent, 'constructor', props);
-    iProtoObj = new UserProximityEvent();
 
     //Add UserProximityEvent to global object (i.e., to Window)
     props = {
@@ -157,13 +183,22 @@
     Object.defineProperty(globalObject, 'UserProximityEvent', props);
 
     //Set up prototype for interface
-    iObj.prototype = iProtoObj;
+    iObj.prototype = new UserProximityEvent();
     props = {
         writable: false,
         enumerable: false,
         configurable: false
     };
     Object.defineProperty(iObj, 'prototype', props);
+
+    //redefine toString() for interface object
+    props = {
+        writable: true,
+        enumerable: false,
+        configurable: true,
+        value: function toString(){return "function UserProximityEvent() { [native code] }"}
+    };
+    Object.defineProperty(iObj, "toString", props);
 
     //Inteface Prototype Object
     function UserProximityEvent() {

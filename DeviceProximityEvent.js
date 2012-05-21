@@ -27,6 +27,8 @@
     iObj = function DeviceProximityEvent(type, eventInitDict) {
             var typeString = String(type),
                 converters = Object.create({}),
+                props,
+                eventProto = Object.getPrototypeOf(Object.getPrototypeOf(this)),
                 dict = {
                     value: sensor.value || +Infinity,
                     max: sensor.max || +Infinity,
@@ -66,11 +68,9 @@
                 }
             }
 
-            min = dict.min;
-            max = dict.max;
-            value = dict.value;
-
+            Object.defineProperty(this, "timeStamp", {value: Date.now() }) ;
             this.initEvent(typeString, dict.bubbles, dict.cancelable);
+
             //create the min attribute
             props = {
                 get: function() {

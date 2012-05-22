@@ -1,13 +1,13 @@
 /**
 * Implementation of "User Proximity"
 * http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/userproximity.html
-* 
+*
 * Public Domain Software
 * To the extent possible under law, Marcos Caceres has waived all copyright and
 * related or neighboring rights to UserProximityEvent Implementation.
-* 
+*
 * This program implements the following intefaces:
-* 
+*
 * [Constructor (DOMString type, optional UserProximityEventInit eventInitDict)]
 * interface UserProximityEvent : Event {
 *     readonly attribute boolean near;
@@ -17,14 +17,11 @@
 * };
 **/
 (function implementUserProximityEvent(globalObject, sensor) {
-    var props,
+    var stringify,
+        props,
         selfRef = this;
         //Interface Object, as per WebIDL
         iObj = function UserProximityEvent(type, eventInitDict) {
-            if (arguments.length === 0) {
-                throw new TypeError('Not Enough Arguments');
-            }
-
             var props,
                 converters = Object.create(null),
                 dict = {
@@ -32,17 +29,19 @@
                     cancelable: false,
                     bubbles: true
                 },
-                event = new Event(String(type));
+                event;
+            if (arguments.length === 0) {
+                throw new TypeError('Not Enough Arguments');
+            }
 
             //ECMAScript to WebIDL converters
+            converters.cancelable =
+            converters.bubbles =
             converters.near = toBool;
-            converters.bubbles = toBool;
-            converters.cancelable = toBool;
 
-           
             //process eventInitDict if it was passed, overriding 'dict'
             if (arguments.length === 2) {
-                eventInitDict = Object(eventInitDict); 
+                eventInitDict = Object(eventInitDict);
                 for (var key in eventInitDict) {
                     if (dict.hasOwnProperty(key)) {
                         var converter = converters[key],
@@ -57,7 +56,10 @@
                 }
             }
 
-            //create the near attribute
+            //initialize the internal Event
+            event = new Event(String(type), dict);
+
+            //add the near attribute
             props = {
                 get: function() {
                     return dict.near;
@@ -65,31 +67,8 @@
                 enumerable: true,
                 configurable: true
             };
-            Object.defineProperty(this, 'near', props);
-
-            //initialize the internal Event
-            event.initEvent(String(type), dict.bubbles, dict.cancelable);
-            copyEventProps(this); 
-
-
-            //copy underlying properties to this object
-            function copyEventProps(obj){
-                var name, 
-                    propDesc,
-                    propNames = Object.getOwnPropertyNames(event);
-                for(var i = 0; i < propNames.length; i++ ){
-                    name = propNames[i];
-                    propDesc = Object.getOwnPropertyDescriptor(event , name);
-                    delete propDesc.value;
-                    delete propDesc.writable; 
-                    propDesc.get = (function(prop,event){
-                        return function(){
-                            return event[prop];
-                        }    
-                    })(name,event)
-                    Object.defineProperty(obj, name, propDesc);
-                }
-            }
+            Object.defineProperty(event, 'near', props);
+            return event;
 
             //WebIDL ECMAScript to WebIDL boolean
             function toBool(value) {
@@ -141,11 +120,10 @@
                 D.configurable = X.configurable;
                 return D;
             }
-
         };
 
     //Set up prototype for interface
-    UserProximityEvent.prototype = new Event('');
+    UserProximityEvent.prototype = new Event('userproximity', {});
     props = {
         writable: false,
         enumerable: false,
@@ -159,7 +137,7 @@
         enumerable: false,
         configurable: true,
         value: function toString() {
-            return "[object UserProximityEvent]"
+            return '[object UserProximityEvent]';
         }
     };
     Object.defineProperty(UserProximityEvent.prototype, 'toString', props);
@@ -192,13 +170,14 @@
     Object.defineProperty(iObj, 'prototype', props);
 
     //redefine toString() for interface object
+    stringify = 'function UserProximityEvent() { [native code] }';
     props = {
         writable: true,
         enumerable: false,
         configurable: true,
-        value: function toString(){return "function UserProximityEvent() { [native code] }"}
+        value: function toString() {return stringify}
     };
-    Object.defineProperty(iObj, "toString", props);
+    Object.defineProperty(iObj, 'toString', props);
 
     //Inteface Prototype Object
     function UserProximityEvent() {
@@ -215,5 +194,16 @@
         return Math.round(this.max * Math.random());
     }, get near() {
         return Boolean(this.value);
+    },
+    sense: function sense() {
+        var event,
+            dict;
+            obj = this;
+        setInterval(function() {
+            dict = {min: obj.min, max: obj.max, value: obj.value, near: obj.near};
+            event = new UserProximityEvent('userproximity', dict);
+            window.dispatchEvent(event);
+        },Math.round(2000 * Math.random() + 500));
+        return this;
     }
-});
+}.sense());

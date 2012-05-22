@@ -38,7 +38,7 @@
                 },
                 //We can't use Event.call to inherit properly,
                 //so we have to have a private event instead :(
-                event = new Event(String(type));
+                event;
 
             //ECMAScript to WebIDL converters
             converters.value = converters.min = converters.max = toDouble;
@@ -46,10 +46,10 @@
 
             //process eventInitDict if it was passed, overriding 'dict'
             if (arguments.length === 2) {
-                eventInitDict = Object(eventInitDict); 
+                eventInitDict = Object(eventInitDict);
                 for (var key in eventInitDict) {
                     if (dict.hasOwnProperty(key)) {
-                        var value, 
+                        var value,
                             idlValue,
                             converter = converters[key];
 
@@ -63,56 +63,40 @@
             }
 
             //initialize the underlying event
-            event.initEvent(String(type), dict.bubbles, dict.cancelable);
-            copyEventProps(this); 
+            event = new Event(String(type), dict);
 
-            //copy underlying properties to this object
-            function copyEventProps(obj){
-                var propName, 
-                    propDesc,
-                    propNames = Object.getOwnPropertyNames(event);
-                for(var i = 0; i < propNames.length; i++ ){
-                    propName = propNames[i];
-                    propDesc = Object.getOwnPropertyDescriptor(event , propName);
-                    delete propDesc.value;
-                    delete propDesc.writable; 
-                    propDesc.get = (function(p,e){
-                        return function(){
-                            return e[p];
-                        }    
-                    })(propName,event)
-                    Object.defineProperty(obj, propName, propDesc);
-                }
-            }
+
             //create the min attribute
             props = {
-                get: function () {
+                get: function() {
                     return dict.min;
                 },
                 enumerable: true,
                 configurable: true
             };
-            Object.defineProperty(this, 'min', props);
+            Object.defineProperty(event, 'min', props);
 
             //create the max attribute
             props = {
-                get: function () {
+                get: function() {
                     return dict.max;
                 },
                 enumerable: true,
                 configurable: true
             };
-            Object.defineProperty(this, 'max', props);
+            Object.defineProperty(event, 'max', props);
 
             //create the value attribute
             props = {
-                get: function () {
+                get: function() {
                     return dict.value;
                 },
                 enumerable: true,
                 configurable: true
             };
-            Object.defineProperty(this, 'value', props);
+            Object.defineProperty(event, 'value', props);
+
+            return event;
 
             //WebIDL ECMAScript to double
             function toDouble(value) {
@@ -189,7 +173,7 @@
         enumerable: false,
         configurable: true,
         value: function toString() {
-            return "[object DeviceProximityEvent]"
+            return '[object DeviceProximityEvent]';
         }
     };
     Object.defineProperty(DeviceProximityEvent.prototype, 'toString', props);
@@ -229,17 +213,17 @@
         enumerable: false,
         configurable: true,
         value: function toString() {
-            return "function DeviceProximityEvent() { [native code] }"
+            return 'function DeviceProximityEvent() { [native code] }';
         }
     };
-    Object.defineProperty(iObj, "toString", props);
+    Object.defineProperty(iObj, 'toString', props);
 
     //Interface Prototype Object
     function DeviceProximityEvent() {
 
     }
 })(this,
-//fake proximity sensor
+//fake user proximity sensor
 {
     get min() {
         return 0.2;
@@ -249,5 +233,16 @@
         return Math.round(this.max * Math.random());
     }, get near() {
         return Boolean(this.value);
+    },
+    sense: function sense() {
+        var event,
+            dict;
+            obj = this;
+        setInterval(function() {
+            dict = {min: obj.min, max: obj.max, value: obj.value, near: obj.near};
+            event = new DeviceProximityEvent('deviceproximity', dict);
+            window.dispatchEvent(event);
+        },Math.round(2000 * Math.random() + 500));
+        return this;
     }
-});
+}.sense());

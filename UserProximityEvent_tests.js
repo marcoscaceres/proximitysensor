@@ -123,24 +123,20 @@ test(function() {
         assert_readonly(event, 'near', 'readonly attribute near');
 }, 'near is readonly');
 
-//test attribute boolean near;
 test(function() {
         var event = new UserProximityEvent('test', {near: false});
         assert_equals(event.near, false, 'near set to false');
 }, 'near set to false');
 
-//test attribute boolean near;
 test(function() {
         var event = new UserProximityEvent('test', {near: true});
         assert_equals(event.near, true, 'near set to true');
 }, 'near set to true');
 
-//test attribute boolean near;
 test(function() {
         var event = new UserProximityEvent('test', {near: undefined});
         assert_equals(event.near, false, 'argument is truthy');
 }, 'near set to a falsy object');
-
 
 test(function() {
         var event = new UserProximityEvent('test', {near: null});

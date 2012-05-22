@@ -117,6 +117,25 @@ test(function() {
     });
 }, 'toString is of type function');
 
+//test the attributes exist
+test(function() {
+        var event = new DeviceProximityEvent('test');
+        assert_own_property(event, 'value', 'must have attribute value');
+    }
+    , 'value attribute exist');
+
+test(function() {
+        var event = new DeviceProximityEvent('test');
+        assert_own_property(event, 'min', 'must have attribute min');
+    }
+    , 'min attribute exist');
+
+test(function() {
+        var event = new DeviceProximityEvent('test');
+        assert_own_property(event, 'max', 'must have attribute max');
+    }
+    , 'max attribute exist');
+
 //test readonly attribute double value;
 test(function() {
         var event = new DeviceProximityEvent('test');
@@ -138,3 +157,52 @@ test(function() {
     }
     , 'max attribute is readonly');
 
+
+test(function() {
+    var dic = {min: 3, max: 7, value: 13},
+        event = new DeviceProximityEvent('test', dic),
+        props = {
+            writable: false,
+            enumerable: true,
+            configurable: true
+        },
+        eProps = Object.getOwnPropertyDescriptor(event, 'max'),
+        writable = eProps.writable === props.writable,
+        enumerable = eProps.enumerable === props.enumerable,
+        config = eProps.configurable === props.configurable;
+    assert_true(writable && enumerable && config);
+}, 'min props check');
+
+test(function() {
+    //the max attribute
+    var dic = {min: 3, max: 7, value: 13},
+        event = new DeviceProximityEvent('test', dic),
+        props = {
+            writable: false,
+            enumerable: true,
+            configurable: true
+        },
+        eProps = Object.getOwnPropertyDescriptor(event, 'max'),
+        writable = eProps.writable === props.writable,
+        enumerable = eProps.enumerable === props.enumerable,
+        config = eProps.configurable === props.configurable;
+
+    assert_true(writable && enumerable && config);
+
+}, 'max props check');
+
+test(function() {
+       var dic = {min: 3, max: 7, value: 13},
+        event = new DeviceProximityEvent('test', dic),
+        props = {
+            writable: false,
+            enumerable: true,
+            configurable: true
+        },
+        eProps = Object.getOwnPropertyDescriptor(event, 'value'),
+        writable = eProps.writable === props.writable,
+        enumerable = eProps.enumerable === props.enumerable,
+        config = eProps.configurable === props.configurable;
+
+    assert_true(writable && enumerable && config);
+}, 'value props check');

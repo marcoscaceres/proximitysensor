@@ -243,7 +243,7 @@
             };
             event = new DeviceProximityEvent('deviceproximity', dict);
             window.dispatchEvent(event);
-        }, Math.round(2000 * Math.random() + 500));
+        }, 500);
         return this;
     }
 }.sense());

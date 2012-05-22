@@ -17,9 +17,14 @@
 * };
 **/
 (function implementUserProximityEvent(globalObject, sensor) {
-    var stringify,
-        props,
-        selfRef = this;
+    'use strict';
+    //only polyfill if needed
+    if (globalObject.UserProximityEvent) {
+        return;
+    }
+
+    var stringify, props,
+        selfRef = this,
         //Interface Object, as per WebIDL
         iObj = function UserProximityEvent(type, eventInitDict) {
             var props,

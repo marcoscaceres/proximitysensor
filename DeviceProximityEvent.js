@@ -21,6 +21,10 @@
  * };
  **/ (function implementDeviceProximityEvent(globalObject, sensor) {
     'use strict';
+    //only polyfill if needed
+    if (globalObject.DeviceProximityEvent) {
+        return;
+    }
     var min, max, value, props, iProtoObj,
     //interface object + constructor
     iObj = function DeviceProximityEvent(type, eventInitDict) {

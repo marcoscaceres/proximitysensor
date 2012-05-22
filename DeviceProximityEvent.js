@@ -8,7 +8,7 @@
  *
  * This program implements the following intefaces:
  *
- * [Constructor (DOMString type, optional DeviceProximityEventInit eventInitDict)]
+ * [Constructor(DOMString type,optional DeviceProximityEventInit eventInitDict)]
  * interface DeviceProximityEvent : Event {
  *     readonly attribute double value;
  *     readonly attribute double min;
@@ -23,12 +23,11 @@
     'use strict';
     var min, max, value, props, iProtoObj,
     //interface object + constructor
-        iObj = function DeviceProximityEvent(type, eventInitDict) {
+    iObj = function DeviceProximityEvent(type, eventInitDict) {
             if (arguments.length === 0) {
                 throw new TypeError('Not Enough Arguments');
             }
-            var props,
-                converters = Object.create({}),
+            var props, converters = Object.create({}),
                 dict = {
                     value: sensor.value || +Infinity,
                     max: sensor.max || +Infinity,
@@ -49,9 +48,7 @@
                 eventInitDict = Object(eventInitDict);
                 for (var key in eventInitDict) {
                     if (dict.hasOwnProperty(key)) {
-                        var value,
-                            idlValue,
-                            converter = converters[key];
+                        var value, idlValue, converter = converters[key];
 
                         if (HasProperty(eventInitDict, key)) {
                             value = eventInitDict[key];
@@ -68,9 +65,8 @@
 
             //create the min attribute
             props = {
-                get: function() {
-                    return dict.min;
-                },
+                value: dict.min,
+                writable: false,
                 enumerable: true,
                 configurable: true
             };
@@ -78,9 +74,8 @@
 
             //create the max attribute
             props = {
-                get: function() {
-                    return dict.max;
-                },
+                value: dict.max,
+                writable: false,
                 enumerable: true,
                 configurable: true
             };
@@ -88,9 +83,8 @@
 
             //create the value attribute
             props = {
-                get: function() {
-                    return dict.value;
-                },
+                value: dict.value,
+                writable: false,
                 enumerable: true,
                 configurable: true
             };
@@ -233,16 +227,19 @@
         return Math.round(this.max * Math.random());
     }, get near() {
         return Boolean(this.value);
-    },
-    sense: function sense() {
-        var event,
-            dict;
-            obj = this;
+    }, sense: function sense() {
+        var event, dict;
+        obj = this;
         setInterval(function() {
-            dict = {min: obj.min, max: obj.max, value: obj.value, near: obj.near};
+            dict = {
+                min: obj.min,
+                max: obj.max,
+                value: obj.value,
+                near: obj.near
+            };
             event = new DeviceProximityEvent('deviceproximity', dict);
             window.dispatchEvent(event);
-        },Math.round(2000 * Math.random() + 500));
+        }, Math.round(2000 * Math.random() + 500));
         return this;
     }
 }.sense());

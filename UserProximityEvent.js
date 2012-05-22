@@ -61,9 +61,8 @@
 
             //add the near attribute
             props = {
-                get: function() {
-                    return dict.near;
-                },
+                value: dict.near,
+                writable: false,
                 enumerable: true,
                 configurable: true
             };

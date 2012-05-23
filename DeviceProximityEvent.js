@@ -19,7 +19,8 @@
  *     double min;
  *     double max;
  * };
- **/ (function implementDeviceProximityEvent(globalObject, sensor) {
+ **/
+ (function implementDeviceProximityEvent(globalObject, sensor) {
     'use strict';
     //only polyfill if needed
     if (globalObject.DeviceProximityEvent) {
@@ -31,17 +32,14 @@
             if (arguments.length === 0) {
                 throw new TypeError('Not Enough Arguments');
             }
-            var props, converters = Object.create({}),
+            var props, event, converters = Object.create({}),
                 dict = {
                     value: sensor.value || +Infinity,
                     max: sensor.max || +Infinity,
                     min: sensor.min || -Infinity,
                     cancelable: false,
                     bubbles: true
-                },
-                //We can't use Event.call to inherit properly,
-                //so we have to have a private event instead :(
-                event;
+                };
 
             //ECMAScript to WebIDL converters
             converters.value = converters.min = converters.max = toDouble;
@@ -62,10 +60,8 @@
                     }
                 }
             }
-
             //initialize the underlying event
             event = new Event(String(type), dict);
-
 
             //create the min attribute
             props = {
@@ -93,7 +89,6 @@
                 configurable: true
             };
             Object.defineProperty(event, 'value', props);
-
             return event;
 
             //WebIDL ECMAScript to double
@@ -126,11 +121,11 @@
             }
             //ECMAScript5 GetProperty
             function GetProperty(O, P) {
-                var prop = GetOwnProperty(O, P);
+                var prop = GetOwnProperty(O, P),
+                    proto = Object.getPrototypeOf(O);
                 if (prop !== undefined) {
                     return prop;
                 }
-                var proto = Object.getPrototypeOf(O);
                 if (proto === null) {
                     return undefined;
                 }
@@ -141,8 +136,8 @@
                 if (!O.hasOwnProperty(P)) {
                     return undefined;
                 }
-                var D = Object.create({});
-                var X = Object.getOwnPropertyDescriptor(O, P);
+                var D = Object.create({}),
+                    X = Object.getOwnPropertyDescriptor(O, P);
                 if (X.hasOwnProperty('value') || X.hasOwnProperty('writable')) {
                     D.value = X.value;
                     D.writable = X.writable;
@@ -223,6 +218,10 @@
 })(this,
 //fake device proximity sensor
 {
+    fireEvent: function fireEvent() {
+        var e = new DeviceProximityEvent('deviceproximity', this.dict);
+        window.dispatchEvent(e);
+    },
     get dict() {
         return {
                 min: this.min,
@@ -246,19 +245,14 @@
         //first run
         if (this.value === null) {
             this.refreshValue();
-            setTimeout(fireEvent, 4);
+            setTimeout(this.fireEvent, 4);
         }
 
         setInterval(function() {
             //new random value
             obj.refreshValue();
-            fireEvent();
+            obj.fireEvent();
         }, 16);
         return this;
-
-        function fireEvent() {
-            var e = new DeviceProximityEvent('deviceproximity', this.dict);
-            window.dispatchEvent(e);
-        }
     }
 }.sense());

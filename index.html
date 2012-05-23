@@ -8,4 +8,37 @@
 <script src="DeviceProximityEvent_tests.js"></script>
 <script src="UserProximityEvent_tests.js"></script>
 <h1>Reference implementation of Device/UserProximityEvent</h1> 
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="120px">
+  <circle id="userprox" cx="50" cy="50" r="40" stroke="black"
+  stroke-width="2" fill="red">
+  </circle>
+   <text y="110" style="stroke:none; fill:#000000; font-family: Arial;
+                 font-size  : 20;">near/far</text>
+    <circle id="deviceprox"cx="170" cy="50" r="40" stroke="white"
+  stroke-width="2" fill="black">
+  </circle>
+     <text y="110" x="110" style="stroke:none; fill:#000000; font-family: Arial;
+                 font-size  : 20;">device proximity</text>
+
+</svg>
 <div id="log"></div>
+<script>
+	(function(){
+		var userprox = document.querySelector("#userprox"); 
+		window.addEventListener('userproximity', function(e){
+			if(e.near){
+				userprox.setAttribute("fill", "green"); 
+				return; 
+			}
+			userprox.setAttribute("fill", "red"); 
+		});
+
+		var deviceprox = document.querySelector("#deviceprox");
+		window.addEventListener('deviceproximity', function(e){
+		 if(e.value !== Infinity){
+			 deviceprox.setAttribute("r", String(e.value * 5));
+			}
+		});
+	})(); 
+</script>

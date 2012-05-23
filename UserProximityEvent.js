@@ -190,24 +190,44 @@
 })(this,
 //fake user proximity sensor
 {
-    get min() {
-        return 0.2;
-    }, get max() {
-        return 5.0;
-    }, get value() {
-        return Math.round(this.max * Math.random());
-    }, get near() {
+    get dict() {
+        return {
+                near: this.near
+            };
+    },
+    value: null,
+    get near() {
         return Boolean(this.value);
     },
+    refreshValue: function updateValue() {
+        this.value = Math.round(Math.random());
+        return this.value;
+    }
+    ,
     sense: function sense() {
-        var event,
-            dict;
-            obj = this;
+        var obj = this;
+        //first run
+        if (this.value === null) {
+            this.refreshValue();
+            //queue a task to fire event
+            setTimeout(fireUserEvent, 4);
+        }
         setInterval(function() {
-            dict = {min: obj.min, max: obj.max, value: obj.value, near: obj.near};
-            event = new UserProximityEvent('userproximity', dict);
-            window.dispatchEvent(event);
-        },Math.round(2000 * Math.random() + 500));
+            var oldNear = obj.near;
+
+            //new random value
+            obj.refreshValue();
+
+            //check if we need to fire a user proximity change event
+            if (oldNear !== this.near) {
+                fireUserEvent();
+            }
+        }, 500);
         return this;
+
+        function fireUserEvent() {
+            userEvent = new UserProximityEvent('userproximity', this.dict);
+            window.dispatchEvent(userEvent);
+        }
     }
 }.sense());

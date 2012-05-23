@@ -1,5 +1,8 @@
 /**
  * DeviceProximityEvent_tests.js
+ * This is the unofficial, unapproved, tell all, test suite for the
+ * DeviceProximityEvent API of the W3C Proximity Event specification.
+ *
  * Public Domain Software
  * To the extent possible under law, Marcos Caceres has waived all copyright and
  * related or neighboring rights to DeviceProximityEvent Implementation.

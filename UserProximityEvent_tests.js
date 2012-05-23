@@ -1,10 +1,13 @@
 /**
  * UserProximityEvent_tests.js
+ * This is the unofficial, unapproved, tell all, test suite for the
+ * UserProximityEvent API of the W3C Proximity Event specification.
+ *
  * Public Domain Software
  * To the extent possible under law, Marcos Caceres has waived all copyright and
  * related or neighboring rights to UserProximityEvent Implementation.
  **/
- (function() {
+(function() {
     //inheritance tests
     test(function() {
         var event = new UserProximityEvent('');
@@ -206,7 +209,7 @@
     }, 'near set to object that resolves to false');
 
     //Async tests
-    var t = async_test('test if proximity event recieved');
+    var t = async_test('test if user proximity event recieved');
     window.addEventListener('userproximity', function(e) {
         t.step(function() {
             var msg = 'expected instance of UserProximityEvent: ';

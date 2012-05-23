@@ -221,29 +221,44 @@
 
     }
 })(this,
-//fake user proximity sensor
+//fake device proximity sensor
 {
+    get dict() {
+        return {
+                min: this.min,
+                max: this.max,
+                value: this.value,
+                near: this.near
+            };
+    },
     get min() {
         return 0.2;
     }, get max() {
         return 5.0;
-    }, get value() {
-        return Math.round(this.max * Math.random());
-    }, get near() {
-        return Boolean(this.value);
-    }, sense: function sense() {
-        var event, dict;
-        obj = this;
+    }, value: null,
+    refreshValue: function updateValue() {
+        this.value = Math.abs(Math.sin(Date.now() / 1000) * 10);
+        return this.value;
+    }
+    ,
+    sense: function sense() {
+        var obj = this;
+        //first run
+        if (this.value === null) {
+            this.refreshValue();
+            setTimeout(fireEvent, 4);
+        }
+
         setInterval(function() {
-            dict = {
-                min: obj.min,
-                max: obj.max,
-                value: obj.value,
-                near: obj.near
-            };
-            event = new DeviceProximityEvent('deviceproximity', dict);
-            window.dispatchEvent(event);
-        }, 500);
+            //new random value
+            obj.refreshValue();
+            fireEvent();
+        }, 16);
         return this;
+
+        function fireEvent() {
+            var e = new DeviceProximityEvent('deviceproximity', this.dict);
+            window.dispatchEvent(e);
+        }
     }
 }.sense());

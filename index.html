@@ -1,48 +1,48 @@
 <!doctype html>
-<title>DeviceProximityEvent and UserProximity</title>
+<title>Proximity Events</title>
 <script src="http://www.w3c-test.org/resources/testharness.js"></script>
 <script src="DeviceProximityEvent.js"></script>
 <script src="UserProximityEvent.js"></script>
 <script src="DeviceProximityEvent_tests.js"></script>
 <script src="UserProximityEvent_tests.js"></script>
-<h1>Reference implementation of Device/UserProximityEvent</h1> 
-
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="120px">
-  <circle id="userprox" cx="50" cy="50" r="40" stroke="black"
-  stroke-width="2" fill="red">
-  </circle>
-   <text id="userprox_text" y="110" style="stroke:none; fill:#000000; font-family: Arial;
+<h1>Proximity Events</h1>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+height="120px">
+    <circle id="userprox" cx="50" cy="50" r="40" stroke="black" stroke-width="2"
+    fill="red"></circle>
+    <text id="userprox_text" y="110" style="stroke:none; fill:#000000; font-family: Arial;
                  font-size  : 20;">near/far</text>
-    <circle id="deviceprox"cx="170" cy="50" r="40" stroke="white"
-  stroke-width="2" fill="black">
-  </circle>
-     <text id="deviceprox_text" y="110" x="110" style="stroke:none; fill:#000000; font-family: Arial;
+    <circle id="deviceprox" cx="170" cy="50" r="40" stroke="white"
+    stroke-width="2" fill="black"></circle>
+    <text id="deviceprox_text" y="110" x="110" style="stroke:none; fill:#000000; font-family: Arial;
                  font-size  : 20;">device proximity</text>
-
 </svg>
 <div id="log"></div>
 <script>
-(function() {
-    var userprox = document.querySelector('#userprox'),
-        userprox_text = document.querySelector('#userprox_text').firstChild;
+    (function setup() {
+        var userprox = document.querySelector('#userprox'),
+            deviceprox = document.querySelector('#deviceprox'),
+            userprox_text = document.querySelector('#userprox_text').firstChild,
+            deviceprox_text = document.querySelector('#deviceprox_text').firstChild;
 
-    window.addEventListener('userproximity', function(e) {
-        if (e.near) {
-            userprox.setAttribute('fill', 'green');
-            userprox_text.data = 'near';
-            return;
-        }
-        userprox.setAttribute('fill', 'red');
-        userprox_text.data = 'far';
-    });
+        window.addEventListener('userproximity', handleUserProx);
+        window.addEventListener('deviceproximity', handleDeviceProx);
 
-    var deviceprox = document.querySelector('#deviceprox'),
-        deviceprox_text = document.querySelector('#deviceprox_text').firstChild;
-    window.addEventListener('deviceproximity', function(e) {
-    if (e.value !== Infinity) {
-         deviceprox.setAttribute('r', String(e.value * 4));
-         deviceprox_text.data = 'Device proximity: ' + String(e.value);
+        function handleDeviceProx(e) {
+            if (e.value !== Infinity) {
+                deviceprox.setAttribute('r', String(e.value * 4));
+                deviceprox_text.data = 'Device proximity: ' + String(e.value);
+            }
         }
-    });
-})();
+
+        function handleUserProx(e) {
+            if (e.near) {
+                userprox.setAttribute('fill', 'green');
+                userprox_text.data = 'near';
+                return;
+            }
+            userprox.setAttribute('fill', 'red');
+            userprox_text.data = 'far';
+        }
+    })();
 </script>

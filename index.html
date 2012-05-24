@@ -31,18 +31,19 @@ height="120px">
         function handleDeviceProx(e) {
             if (e.value !== Infinity) {
                 deviceprox.setAttribute('r', String(e.value * 4));
-                deviceprox_text.data = 'Device proximity: ' + String(e.value);
+                deviceprox_text.data = 'Device proximity: ' + e.value;
             }
         }
 
         function handleUserProx(e) {
+            var state = 'far', 
+                color = 'red';
             if (e.near) {
-                userprox.setAttribute('fill', 'green');
-                userprox_text.data = 'near';
-                return;
+                state = 'near';
+                color = 'green'; 
             }
-            userprox.setAttribute('fill', 'red');
-            userprox_text.data = 'far';
+            userprox.setAttribute('fill', color);
+            userprox_text.data = state;
         }
     })();
 </script>

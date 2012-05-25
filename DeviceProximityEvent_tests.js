@@ -6,7 +6,8 @@
  * Public Domain Software
  * To the extent possible under law, Marcos Caceres has waived all copyright and
  * related or neighboring rights to DeviceProximityEvent Implementation.
- **/ (function() {
+ **/
+ (function() {
     //inheritance tests
     test(function() {
         var event = new DeviceProximityEvent('');

@@ -7,7 +7,7 @@
  * To the extent possible under law, Marcos Caceres has waived all copyright and
  * related or neighboring rights to UserProximityEvent Implementation.
  **/
-(function() {
+ (function() {
     //inheritance tests
     test(function() {
         var event = new UserProximityEvent('');
@@ -220,8 +220,8 @@
 
     test(function() {
         var desc = 'window.onuserproximity did not accept callable object';
-            func = function() {}
-            window.onuserproximity = func;
+        func = function() {}
+        window.onuserproximity = func;
         assert_equals(window.onuserproximity, func, desc);
     }, 'onuserproximity is set to function');
 
@@ -235,7 +235,9 @@
     test(function() {
         var desc = 'window.onuserproximity did not treat noncallable as null';
         window.onuserproximity = function() {};
-        window.onuserproximity = {call: 'test'};
+        window.onuserproximity = {
+            call: 'test'
+        };
         assert_equals(window.onuserproximity, null, desc);
     }, 'treat object with non-callable call property as null');
 

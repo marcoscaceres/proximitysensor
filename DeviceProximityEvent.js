@@ -19,13 +19,75 @@
  *     double min;
  *     double max;
  * };
- **/ (function implementDeviceProximityEvent(globalObject, sensor) {
+ **/
+FakeDeviceProximitySensor.prototype = {
+    fireEvent: function fireEvent() {
+        'use strict';
+        var e = new window.DeviceProximityEvent('deviceproximity', this.dict);
+        window.dispatchEvent(e);
+    },
+    get dict() {
+        'use strict';
+        return {
+            min: this.min,
+            max: this.max,
+            value: this.value,
+            near: this.near
+        };
+    },
+    get min() {
+        'use strict';
+        return 0.2;
+    },
+    get max() {
+        'use strict';
+        return 5.0;
+    },
+    value: null,
+    refreshValue: function updateValue() {
+        'use strict';
+        this.value = Math.abs(Math.sin(Date.now() / 1000) * 10);
+        return this.value;
+    },
+    sense: function sense() {
+        'use strict';
+        var obj = this;
+        //first run
+        if (this.value === null) {
+            this.refreshValue();
+            //queue a task to fire event
+            setTimeout(this.fireEvent, 4);
+        }
+
+        setInterval(function() {
+            //new random value
+            obj.refreshValue();
+            obj.fireEvent();
+        }, 16);
+        return this;
+    },
+
+    registerListener: function registerListener(callback) {
+        'use strict';
+        window.addEventListener('deviceproximity', callback);
+    },
+
+    removeListener: function removeListener(callback) {
+        'use strict';
+        window.removeEventListener('deviceproximity', callback);
+    }
+};
+
+function FakeDeviceProximitySensor() {}
+
+
+(function implementDeviceProximityEvent(globalObject, sensor) {
     'use strict';
     //only polyfill if needed
     if (globalObject.DeviceProximityEvent) {
         return;
     }
-    var min, max, value, props, iProtoObj,
+    var min, max, value, props, iProtoObj, callback,
     //interface object + constructor
     iObj = function DeviceProximityEvent(type, eventInitDict) {
             var props, key, event, value, idlValue, converter, converters = Object.create({}),
@@ -208,56 +270,33 @@
     };
     Object.defineProperty(iObj, 'toString', props);
 
+    //[TreatNonCallableAsNull] attribute Function? ondeviceproximity;
+    function treatNonCallableAsNull(arg) {
+        if (callback) {
+            sensor.removeListener(callback);
+        }
+        if (typeof arg !== 'function' && !(arg.call) && typeof arg.call !== 'function') {
+            callback = null;
+        } else {
+            callback = arg;
+            sensor.registerListener(callback);
+        }
+        return arg;
+    }
+    props = {
+        get: function() {
+            return callback;
+        },
+        set: treatNonCallableAsNull,
+        enumerable: false,
+        configurable: true
+    };
+    Object.defineProperty(globalObject, 'ondeviceproximity', props);
+
     //Interface Prototype Object
     function DeviceProximityEvent() {
 
     }
 })(this,
 //fake device proximity sensor
-{
-    fireEvent: function fireEvent() {
-        'use strict';
-        var e = new window.DeviceProximityEvent('deviceproximity', this.dict);
-        window.dispatchEvent(e);
-    },
-    get dict() {
-        'use strict';
-        return {
-            min: this.min,
-            max: this.max,
-            value: this.value,
-            near: this.near
-        };
-    },
-    get min() {
-        'use strict';
-        return 0.2;
-    },
-    get max() {
-        'use strict';
-        return 5.0;
-    },
-    value: null,
-    refreshValue: function updateValue() {
-        'use strict';
-        this.value = Math.abs(Math.sin(Date.now() / 1000) * 10);
-        return this.value;
-    },
-    sense: function sense() {
-        'use strict';
-        var obj = this;
-        //first run
-        if (this.value === null) {
-            this.refreshValue();
-            //queue a task to fire event
-            setTimeout(this.fireEvent, 4);
-        }
-
-        setInterval(function() {
-            //new random value
-            obj.refreshValue();
-            obj.fireEvent();
-        }, 16);
-        return this;
-    }
-}.sense());
+new FakeDeviceProximitySensor().sense());

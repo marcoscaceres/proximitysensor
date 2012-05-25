@@ -15,7 +15,67 @@
  * dictionary UserProximityEventInit : EventInit {
  *     boolean near;
  * };
- **/ (function implementUserProximityEvent(globalObject, sensor) {
+
+ * partial interface Window {
+ *   [TreatNonCallableAsNull]
+ *     attribute Function? onuserproximity;
+ * };
+ **/
+FakeUserProximitySensor.prototype = {
+    fireEvent: function fireEvent() {
+        'use strict';
+        var userEvent = new window.UserProximityEvent('userproximity', this.dict);
+        window.dispatchEvent(userEvent);
+        return this;
+    },
+    get dict() {
+        'use strict';
+        return {
+            near: this.near
+        };
+    },
+    value: null,
+    get near() {
+        'use strict';
+        return Boolean(this.value);
+    },
+    refreshValue: function refreshValue() {
+        'use strict';
+        this.value = Math.round(Math.random());
+        return this.value;
+    },
+    sense: function sense() {
+        'use strict';
+        var obj = this;
+        //first run
+        if (this.value === null) {
+            this.refreshValue();
+            //queue a task to fire event
+            setTimeout(this.fireEvent, 4);
+        }
+        setInterval(function() {
+            var oldNear = obj.near;
+            obj.refreshValue();
+            if (oldNear !== obj.near) {
+                obj.fireEvent();
+            }
+        }, 500);
+        return this;
+    },
+    registerListener: function registerListener(callback) {
+        'use strict';
+        window.addEventListener('deviceproximity', callback);
+    },
+    removeListener: function removeListener(callback) {
+        'use strict';
+        window.removeEventListener('deviceproximity', callback);
+    }
+};
+
+function FakeUserProximitySensor() {}
+
+
+(function implementUserProximityEvent(globalObject, sensor) {
     'use strict';
     //only polyfill if needed
     if (globalObject.UserProximityEvent) {
@@ -23,6 +83,7 @@
     }
 
     var stringify, props, selfRef = this,
+        callback = null,
         //Interface Object, as per WebIDL
         iObj = function UserProximityEvent(type, eventInitDict) {
             var props, converters = Object.create(null),
@@ -181,46 +242,27 @@
         }
     };
     Object.defineProperty(iObj, 'toString', props);
-}(this,
-//fake user proximity sensor
-{
-    fireEvent: function fireEvent() {
-        'use strict';
-        var userEvent = new window.UserProximityEvent('userproximity', this.dict);
-        window.dispatchEvent(userEvent);
-        return this;
-    },
-    get dict() {
-        'use strict';
-        return {
-            near: this.near
-        };
-    }, value: null,
-    get near() {
-        'use strict';
-        return Boolean(this.value);
-    },
-    refreshValue: function updateValue() {
-        'use strict';
-        this.value = Math.round(Math.random());
-        return this.value;
-    },
-    sense: function sense() {
-        'use strict';
-        var obj = this;
-        //first run
-        if (this.value === null) {
-            this.refreshValue();
-            //queue a task to fire event
-            setTimeout(this.fireEvent, 4);
+
+    //[TreatNonCallableAsNull] attribute Function? onuserproximity;
+    function treatNonCallableAsNull(arg) {
+        if (callback) {
+            sensor.removeListener(callback);
         }
-        setInterval(function() {
-            var oldNear = obj.near;
-            obj.refreshValue();
-            if (oldNear !== this.near) {
-                obj.fireEvent();
-            }
-        }, 500);
-        return this;
+        if (typeof arg !== 'function' && !(arg.call) && typeof arg.call !== 'function') {
+            callback = null;
+        } else {
+            callback = arg;
+            sensor.registerListener(callback);
+        }
+        return arg;
     }
-}.sense()));
+    props = {
+        get: function() {
+            return callback;
+        },
+        set: treatNonCallableAsNull,
+        enumerable: false,
+        configurable: true
+    };
+    Object.defineProperty(globalObject, 'onuserproximity', props);
+}(this, new FakeUserProximitySensor().sense()));

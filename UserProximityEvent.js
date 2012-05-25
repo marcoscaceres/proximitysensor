@@ -1,78 +1,37 @@
 /**
-* Implementation of "User Proximity"
-* http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/userproximity.html
-*
-* Public Domain Software
-* To the extent possible under law, Marcos Caceres has waived all copyright and
-* related or neighboring rights to UserProximityEvent Implementation.
-*
-* This program implements the following intefaces:
-*
-* [Constructor (DOMString type, optional UserProximityEventInit eventInitDict)]
-* interface UserProximityEvent : Event {
-*     readonly attribute boolean near;
-* };
-* dictionary UserProximityEventInit : EventInit {
-*     boolean near;
-* };
-**/
-(function implementUserProximityEvent(globalObject, sensor) {
+ * Implementation of "User Proximity"
+ * http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/userproximity.html
+ *
+ * Public Domain Software
+ * To the extent possible under law, Marcos Caceres has waived all copyright and
+ * related or neighboring rights to UserProximityEvent Implementation.
+ *
+ * This program implements the following intefaces:
+ *
+ * [Constructor (DOMString type, optional UserProximityEventInit eventInitDict)]
+ * interface UserProximityEvent : Event {
+ *     readonly attribute boolean near;
+ * };
+ * dictionary UserProximityEventInit : EventInit {
+ *     boolean near;
+ * };
+ **/ (function implementUserProximityEvent(globalObject, sensor) {
     'use strict';
     //only polyfill if needed
     if (globalObject.UserProximityEvent) {
         return;
     }
 
-    var stringify, props,
-        selfRef = this,
+    var stringify, props, selfRef = this,
         //Interface Object, as per WebIDL
         iObj = function UserProximityEvent(type, eventInitDict) {
-            var props,
-                converters = Object.create(null),
-                dict = {
+            var props, converters = Object.create(null),
+                converter, value, idlValue, dict = {
                     near: sensor.near,
                     cancelable: false,
                     bubbles: true
                 },
-                event;
-            if (arguments.length === 0) {
-                throw new TypeError('Not Enough Arguments');
-            }
-
-            //ECMAScript to WebIDL converters
-            converters.cancelable =
-            converters.bubbles =
-            converters.near = toBool;
-
-            //process eventInitDict if it was passed, overriding 'dict'
-            if (arguments.length === 2) {
-                eventInitDict = Object(eventInitDict);
-                for (var key in eventInitDict) {
-                    if (dict.hasOwnProperty(key)) {
-                        var converter = converters[key],
-                            value, idlValue;
-
-                        if (HasProperty(eventInitDict, key)) {
-                            value = eventInitDict[key];
-                            idlValue = converter(value);
-                            dict[key] = idlValue;
-                        }
-                    }
-                }
-            }
-
-            //initialize the internal Event
-            event = new Event(String(type), dict);
-
-            //add the near attribute
-            props = {
-                value: dict.near,
-                writable: false,
-                enumerable: true,
-                configurable: true
-            };
-            Object.defineProperty(event, 'near', props);
-            return event;
+                event, key;
 
             //WebIDL ECMAScript to WebIDL boolean
             function toBool(value) {
@@ -86,33 +45,13 @@
                 }
                 return type;
             }
-            //ECMAScript5 HasProperty
-            function HasProperty(O, P) {
-                var desc = GetProperty(O, P);
-                if (desc === undefined) {
-                    return false;
-                }
-                return true;
-            }
-            //ECMAScript5 GetProperty
-            function GetProperty(O, P) {
-                var prop = GetOwnProperty(O, P);
-                if (prop !== undefined) {
-                    return prop;
-                }
-                var proto = Object.getPrototypeOf(O);
-                if (proto === null) {
-                    return undefined;
-                }
-                return GetProperty(proto, P);
-            }
             //ECMAScript5 GetOwnProperty
-            function GetOwnProperty(O, P) {
+            function getOwnProperty(O, P) {
                 if (!O.hasOwnProperty(P)) {
                     return undefined;
                 }
-                var D = Object.create({});
-                var X = Object.getOwnPropertyDescriptor(O, P);
+                var D = Object.create({}),
+                    X = Object.getOwnPropertyDescriptor(O, P);
                 if (X.hasOwnProperty('value') || X.hasOwnProperty('writable')) {
                     D.value = X.value;
                     D.writable = X.writable;
@@ -124,10 +63,68 @@
                 D.configurable = X.configurable;
                 return D;
             }
-        };
+            //ECMAScript5 GetProperty
+            function getProperty(O, P) {
+                var prop = getOwnProperty(O, P),
+                    proto = Object.getPrototypeOf(O);
+                if (prop !== undefined) {
+                    return prop;
+                }
+                if (proto === null) {
+                    return undefined;
+                }
+                return getProperty(proto, P);
+            }
+            //ECMAScript5 HasProperty
+            function hasProperty(O, P) {
+                var desc = getProperty(O, P);
+                if (desc === undefined) {
+                    return false;
+                }
+                return true;
+            }
 
+            if (arguments.length === 0) {
+                throw new TypeError('Not Enough Arguments');
+            }
+
+            //ECMAScript to WebIDL converters
+            converters.cancelable = converters.bubbles = converters.near = toBool;
+
+            //process eventInitDict if it was passed, overriding 'dict'
+            if (arguments.length === 2) {
+                eventInitDict = globalObject.Object(eventInitDict);
+                for (key in eventInitDict) {
+                    if (dict.hasOwnProperty(key)) {
+                        converter = converters[key];
+                        if (hasProperty(eventInitDict, key)) {
+                            value = eventInitDict[key];
+                            idlValue = converter(value);
+                            dict[key] = idlValue;
+                        }
+                    }
+                }
+            }
+
+            //initialize the internal Event
+            event = new globalObject.Event(String(type), dict);
+
+            //add the near attribute
+            props = {
+                value: dict.near,
+                writable: false,
+                enumerable: true,
+                configurable: true
+            };
+            Object.defineProperty(event, 'near', props);
+            return event;
+        };
+    //Inteface Prototype Object
+    function UserProximityEvent() {
+
+    }
     //Set up prototype for interface
-    UserProximityEvent.prototype = new Event('userproximity', {});
+    UserProximityEvent.prototype = new globalObject.Event('userproximity', {});
     props = {
         writable: false,
         enumerable: false,
@@ -179,32 +176,31 @@
         writable: true,
         enumerable: false,
         configurable: true,
-        value: function toString() {return stringify}
+        value: function toString() {
+            return stringify;
+        }
     };
     Object.defineProperty(iObj, 'toString', props);
-
-    //Inteface Prototype Object
-    function UserProximityEvent() {
-
-    }
-})(this,
+}(this,
 //fake user proximity sensor
 {
     get dict() {
+        'use strict';
         return {
-                near: this.near
-            };
-    },
-    value: null,
+            near: this.near
+        };
+    }, value: null,
     get near() {
+        'use strict';
         return Boolean(this.value);
     },
     refreshValue: function updateValue() {
+        'use strict';
         this.value = Math.round(Math.random());
         return this.value;
-    }
-    ,
+    },
     sense: function sense() {
+        'use strict';
         var obj = this;
         //first run
         if (this.value === null) {
@@ -226,10 +222,8 @@
         return this;
 
         function fireUserEvent() {
-            userEvent = new UserProximityEvent('userproximity', this.dict);
+            var userEvent = new window.UserProximityEvent('userproximity', obj.dict);
             window.dispatchEvent(userEvent);
         }
     }
-}.sense());
-
-
+}.sense()));

@@ -6,8 +6,7 @@
  * Public Domain Software
  * To the extent possible under law, Marcos Caceres has waived all copyright and
  * related or neighboring rights to DeviceProximityEvent Implementation.
- **/
- (function() {
+ **/ (function() {
     //inheritance tests
     test(function() {
         var event = new DeviceProximityEvent('');
@@ -215,6 +214,82 @@
 
         assert_true(writable && enumerable && config);
     }, 'value props check');
+    test(function() {
+        var desc = 'Expected to find ondeviceproximity attribute on window object';
+        assert_own_property(window, 'ondeviceproximity', desc);
+    }, 'ondeviceproximity exists');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity must be null';
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'ondeviceproximity is null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not accept callable object';
+        func = function() {}
+        window.ondeviceproximity = func;
+        assert_equals(window.ondeviceproximity, func, desc);
+    }, 'ondeviceproximity is set to function');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable as null';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = {};
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat object as null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable as null';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = {
+            call: 'test'
+        };
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat object with non-callable call property as null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable as null',
+            test = function() {};
+        test.call = 'test';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = test;
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat object with non-callable call property as null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable (string) as null';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = 'string';
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat string as null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable (number) as null';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = 123;
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat number as null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable (undefined) as null';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = undefined;
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat undefined as null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable (array) as null';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = [];
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat array as null');
+
+    test(function() {
+        var desc = 'window.ondeviceproximity did not treat noncallable host object as null';
+        window.ondeviceproximity = function() {};
+        window.ondeviceproximity = Node;
+        assert_equals(window.ondeviceproximity, null, desc);
+    }, 'treat non-callable host object as null');
 
     //Async tests
     var t = async_test('test if device proximity event recieved');
@@ -225,4 +300,13 @@
         });
         t.done();
     });
+
+    var t2 = async_test('test if user proximity event recieved');
+    window.ondeviceproximity = function(e) {
+        t2.step(function() {
+            var msg = 'expected instance of DeviceProximityEvent: ';
+            assert_true(e instanceof window.DeviceProximityEvent, msg);
+        });
+        t2.done();
+    };
 })();

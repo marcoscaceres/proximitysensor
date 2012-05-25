@@ -208,6 +208,81 @@
         assert_equals(event.near, false, 'explict false');
     }, 'near set to object that resolves to false');
 
+    test(function() {
+        var desc = 'Expected to find onuserproximity attribute on window object';
+        assert_own_property(window, 'onuserproximity', desc);
+    }, 'onuserproximity exists');
+
+    test(function() {
+        var desc = 'window.onuserproximity must be null';
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'onuserproximity is null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not accept callable object';
+            func = function() {}
+            window.onuserproximity = func;
+        assert_equals(window.onuserproximity, func, desc);
+    }, 'onuserproximity is set to function');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable as null';
+        window.onuserproximity = function() {};
+        window.onuserproximity = {};
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat object as null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable as null';
+        window.onuserproximity = function() {};
+        window.onuserproximity = {call: 'test'};
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat object with non-callable call property as null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable as null',
+            test = function() {};
+        test.call = 'test';
+        window.onuserproximity = function() {};
+        window.onuserproximity = test;
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat object with non-callable call property as null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable (string) as null';
+        window.onuserproximity = function() {};
+        window.onuserproximity = 'string';
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat string as null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable (number) as null';
+        window.onuserproximity = function() {};
+        window.onuserproximity = 123;
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat number as null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable (undefined) as null';
+        window.onuserproximity = function() {};
+        window.onuserproximity = undefined;
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat undefined as null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable (array) as null';
+        window.onuserproximity = function() {};
+        window.onuserproximity = [];
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat array as null');
+
+    test(function() {
+        var desc = 'window.onuserproximity did not treat noncallable host object as null';
+        window.onuserproximity = function() {};
+        window.onuserproximity = Node;
+        assert_equals(window.onuserproximity, null, desc);
+    }, 'treat non-callable host object as null');
+
     //Async tests
     var t = async_test('test if user proximity event recieved');
     window.addEventListener('userproximity', function(e) {
@@ -217,4 +292,13 @@
         });
         t.done();
     });
+
+    var t2 = async_test('test if user proximity event recieved');
+    window.onuserproximity = function(e) {
+        t2.step(function() {
+            var msg = 'expected instance of UserProximityEvent: ';
+            assert_true(e instanceof window.UserProximityEvent, msg);
+        });
+        t2.done();
+    };
 })();

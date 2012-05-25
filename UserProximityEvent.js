@@ -243,16 +243,17 @@ function FakeUserProximitySensor() {}
     };
     Object.defineProperty(iObj, 'toString', props);
 
-    //[TreatNonCallableAsNull] attribute Function? onuserproximity;
+    //[TreatNonCallableAsNull] attribute Function? ondeviceproximity;
     function treatNonCallableAsNull(arg) {
-        if (callback) {
-            sensor.removeListener(callback);
-        }
-        if (typeof arg !== 'function' && !(arg.call) && typeof arg.call !== 'function') {
-            callback = null;
-        } else {
-            callback = arg;
-            sensor.registerListener(callback);
+        if (arg !== callback) {
+            if (callback) {
+                sensor.removeListener(callback);
+                callback = null;
+            }
+            if (typeof arg === 'function' && arg.call !== undefined && typeof arg.call === 'function') {
+                callback = arg;
+                sensor.registerListener(callback);
+            }
         }
         return arg;
     }

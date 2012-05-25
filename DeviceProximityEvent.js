@@ -87,7 +87,8 @@ function FakeDeviceProximitySensor() {}
     if (globalObject.DeviceProximityEvent) {
         return;
     }
-    var min, max, value, props, iProtoObj, callback,
+    var min, max, value, props, iProtoObj,
+    callback = null,
     //interface object + constructor
     iObj = function DeviceProximityEvent(type, eventInitDict) {
             var props, key, event, value, idlValue, converter, converters = Object.create({}),
@@ -272,14 +273,15 @@ function FakeDeviceProximitySensor() {}
 
     //[TreatNonCallableAsNull] attribute Function? ondeviceproximity;
     function treatNonCallableAsNull(arg) {
-        if (callback) {
-            sensor.removeListener(callback);
-        }
-        if (typeof arg !== 'function' && !(arg.call) && typeof arg.call !== 'function') {
-            callback = null;
-        } else {
-            callback = arg;
-            sensor.registerListener(callback);
+        if (arg !== callback) {
+            if (callback) {
+                sensor.removeListener(callback);
+                callback = null;
+            }
+            if (typeof arg === 'function' && arg.call !== undefined && typeof arg.call === 'function') {
+                callback = arg;
+                sensor.registerListener(callback);
+            }
         }
         return arg;
     }

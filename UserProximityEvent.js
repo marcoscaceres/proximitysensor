@@ -184,6 +184,12 @@
 }(this,
 //fake user proximity sensor
 {
+    fireEvent: function fireEvent() {
+        'use strict';
+        var userEvent = new window.UserProximityEvent('userproximity', this.dict);
+        window.dispatchEvent(userEvent);
+        return this;
+    },
     get dict() {
         'use strict';
         return {
@@ -206,24 +212,15 @@
         if (this.value === null) {
             this.refreshValue();
             //queue a task to fire event
-            setTimeout(fireUserEvent, 4);
+            setTimeout(this.fireEvent, 4);
         }
         setInterval(function() {
             var oldNear = obj.near;
-
-            //new random value
             obj.refreshValue();
-
-            //check if we need to fire a user proximity change event
             if (oldNear !== this.near) {
-                fireUserEvent();
+                obj.fireEvent();
             }
         }, 500);
         return this;
-
-        function fireUserEvent() {
-            var userEvent = new window.UserProximityEvent('userproximity', obj.dict);
-            window.dispatchEvent(userEvent);
-        }
     }
 }.sense()));

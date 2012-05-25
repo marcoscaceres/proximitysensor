@@ -19,8 +19,7 @@
  *     double min;
  *     double max;
  * };
- **/
- (function implementDeviceProximityEvent(globalObject, sensor) {
+ **/ (function implementDeviceProximityEvent(globalObject, sensor) {
     'use strict';
     //only polyfill if needed
     if (globalObject.DeviceProximityEvent) {
@@ -29,10 +28,7 @@
     var min, max, value, props, iProtoObj,
     //interface object + constructor
     iObj = function DeviceProximityEvent(type, eventInitDict) {
-            if (arguments.length === 0) {
-                throw new TypeError('Not Enough Arguments');
-            }
-            var props, event, converters = Object.create({}),
+            var props, key, event, value, idlValue, converter, converters = Object.create({}),
                 dict = {
                     value: sensor.value || +Infinity,
                     max: sensor.max || +Infinity,
@@ -40,6 +36,67 @@
                     cancelable: false,
                     bubbles: true
                 };
+            if (arguments.length === 0) {
+                throw new TypeError('Not Enough Arguments');
+            }
+            //WebIDL ECMAScript to double
+            function toDouble(value) {
+                var x = Number(value);
+                if (isNaN(x) || x === Infinity || x === -Infinity) {
+                    throw new TypeError('Cannot convert to double.');
+                }
+                return x;
+            }
+            //WebIDL ECMAScript to WebIDL boolean
+            function toBool(value) {
+                return Boolean(value);
+            }
+            //ECMAScript5 Type(x)
+            function Type(x) {
+                var type = (x === null) ? 'null' : typeof x;
+                if (type === 'function') {
+                    type = 'object';
+                }
+                return type;
+            }
+            //ECMAScript5 GetOwnProperty
+            function getOwnProperty(O, P) {
+                if (!O.hasOwnProperty(P)) {
+                    return undefined;
+                }
+                var D = Object.create({}),
+                    X = Object.getOwnPropertyDescriptor(O, P);
+                if (X.hasOwnProperty('value') || X.hasOwnProperty('writable')) {
+                    D.value = X.value;
+                    D.writable = X.writable;
+                } else {
+                    D.get = X.get;
+                    D.set = X.set;
+                }
+                D.enumerable = X.enumerable;
+                D.configurable = X.configurable;
+                return D;
+            }
+            //ECMAScript5 GetProperty
+            function getProperty(O, P) {
+                var prop = getOwnProperty(O, P),
+                    proto = Object.getPrototypeOf(O);
+                if (prop !== undefined) {
+                    return prop;
+                }
+                if (proto === null) {
+                    return undefined;
+                }
+                return getProperty(proto, P);
+            }
+            //ECMAScript5 HasProperty
+            function hasProperty(O, P) {
+                var desc = getProperty(O, P);
+                if (desc === undefined) {
+                    return false;
+                }
+                return true;
+            }
 
             //ECMAScript to WebIDL converters
             converters.value = converters.min = converters.max = toDouble;
@@ -47,12 +104,11 @@
 
             //process eventInitDict if it was passed, overriding 'dict'
             if (arguments.length === 2) {
-                eventInitDict = Object(eventInitDict);
-                for (var key in eventInitDict) {
+                eventInitDict = globalObject.Object(eventInitDict);
+                for (key in eventInitDict) {
                     if (dict.hasOwnProperty(key)) {
-                        var value, idlValue, converter = converters[key];
-
-                        if (HasProperty(eventInitDict, key)) {
+                        converter = converters[key];
+                        if (hasProperty(eventInitDict, key)) {
                             value = eventInitDict[key];
                             idlValue = converter(value);
                             dict[key] = idlValue;
@@ -61,7 +117,7 @@
                 }
             }
             //initialize the underlying event
-            event = new Event(String(type), dict);
+            event = new globalObject.Event(String(type), dict);
 
             //create the min attribute
             props = {
@@ -90,69 +146,10 @@
             };
             Object.defineProperty(event, 'value', props);
             return event;
-
-            //WebIDL ECMAScript to double
-            function toDouble(value) {
-                var x = Number(value);
-                if (isNaN(x) || x === Infinity || x === -Infinity) {
-                    throw new TypeError('Cannot convert to double.');
-                }
-                return x;
-            }
-            //WebIDL ECMAScript to WebIDL boolean
-            function toBool(value) {
-                return Boolean(value);
-            }
-            //ECMAScript5 Type(x)
-            function Type(x) {
-                var type = (x === null) ? 'null' : typeof x;
-                if (type === 'function') {
-                    type = 'object';
-                }
-                return type;
-            }
-            //ECMAScript5 HasProperty
-            function HasProperty(O, P) {
-                var desc = GetProperty(O, P);
-                if (desc === undefined) {
-                    return false;
-                }
-                return true;
-            }
-            //ECMAScript5 GetProperty
-            function GetProperty(O, P) {
-                var prop = GetOwnProperty(O, P),
-                    proto = Object.getPrototypeOf(O);
-                if (prop !== undefined) {
-                    return prop;
-                }
-                if (proto === null) {
-                    return undefined;
-                }
-                return GetProperty(proto, P);
-            }
-            //ECMAScript5 GetOwnProperty
-            function GetOwnProperty(O, P) {
-                if (!O.hasOwnProperty(P)) {
-                    return undefined;
-                }
-                var D = Object.create({}),
-                    X = Object.getOwnPropertyDescriptor(O, P);
-                if (X.hasOwnProperty('value') || X.hasOwnProperty('writable')) {
-                    D.value = X.value;
-                    D.writable = X.writable;
-                } else {
-                    D.get = X.get;
-                    D.set = X.set;
-                }
-                D.enumerable = X.enumerable;
-                D.configurable = X.configurable;
-                return D;
-            }
         };
 
     //Set up prototype for iterface
-    DeviceProximityEvent.prototype = new Event('');
+    DeviceProximityEvent.prototype = new globalObject.Event('');
     props = {
         writable: true,
         enumerable: false,
@@ -219,32 +216,40 @@
 //fake device proximity sensor
 {
     fireEvent: function fireEvent() {
-        var e = new DeviceProximityEvent('deviceproximity', this.dict);
+        'use strict';
+        var e = new window.DeviceProximityEvent('deviceproximity', this.dict);
         window.dispatchEvent(e);
     },
     get dict() {
+        'use strict';
         return {
-                min: this.min,
-                max: this.max,
-                value: this.value,
-                near: this.near
-            };
+            min: this.min,
+            max: this.max,
+            value: this.value,
+            near: this.near
+        };
     },
     get min() {
+        'use strict';
         return 0.2;
-    }, get max() {
+    },
+    get max() {
+        'use strict';
         return 5.0;
-    }, value: null,
+    },
+    value: null,
     refreshValue: function updateValue() {
+        'use strict';
         this.value = Math.abs(Math.sin(Date.now() / 1000) * 10);
         return this.value;
-    }
-    ,
+    },
     sense: function sense() {
+        'use strict';
         var obj = this;
         //first run
         if (this.value === null) {
             this.refreshValue();
+            //queue a task to fire event
             setTimeout(this.fireEvent, 4);
         }
 

@@ -226,8 +226,8 @@
     }, 'ondeviceproximity is null');
 
     test(function() {
-        var desc = 'window.ondeviceproximity did not accept callable object';
-        func = function() {}
+        var desc = 'window.ondeviceproximity did not accept callable object',
+            func = function() {};
         window.ondeviceproximity = func;
         assert_equals(window.ondeviceproximity, func, desc);
     }, 'ondeviceproximity is set to function');

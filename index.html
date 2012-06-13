@@ -1,10 +1,5 @@
 <!doctype html>
 <title>Proximity Events</title>
-<script src="http://www.w3c-test.org/resources/testharness.js"></script>
-<script src="DeviceProximityEvent.js"></script>
-<script src="UserProximityEvent.js"></script>
-<script src="DeviceProximityEvent_tests.js"></script>
-<script src="UserProximityEvent_tests.js"></script>
 <h1>Proximity Events</h1>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
 height="120px">
@@ -20,6 +15,11 @@ height="120px">
 <h2>Tests</h2>
 <p>Remember that this is a polyfill, so some errors are expected as we can't fully implement native stuff in JavaScript.</p>
 <div id="log"></div>
+<script src="http://www.w3c-test.org/resources/testharness.js"></script>
+<script src="DeviceProximityEvent.js"></script>
+<script src="UserProximityEvent.js"></script>
+<script src="DeviceProximityEvent_tests.js"></script>
+<script src="UserProximityEvent_tests.js"></script>
 <script>
     (function setup() {
         var userprox = document.querySelector('#userprox'),

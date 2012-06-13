@@ -219,8 +219,8 @@
     }, 'onuserproximity is null');
 
     test(function() {
-        var desc = 'window.onuserproximity did not accept callable object';
-        func = function() {}
+        var desc = 'window.onuserproximity did not accept callable object',
+            func = function() {}
         window.onuserproximity = func;
         assert_equals(window.onuserproximity, func, desc);
     }, 'onuserproximity is set to function');

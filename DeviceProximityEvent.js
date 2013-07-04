@@ -20,6 +20,7 @@
  *     double max;
  * };
  **/
+ 
 FakeDeviceProximitySensor.prototype = {
     fireEvent: function fireEvent() {
         'use strict';
@@ -87,6 +88,7 @@ function FakeDeviceProximitySensor() {}
     if (globalObject.DeviceProximityEvent) {
         return;
     }
+    console.warn("Proximity sensor is an unsupported component with an indefinite lifetime. This should be used for evaluation purposes only and should not be used for production level applications.");
     var min, max, value, props, iProtoObj,
     callback = null,
     //interface object + constructor

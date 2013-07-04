@@ -2,6 +2,11 @@
 
 This is a reference implementation of the W3C's [Proximity Events](http://dvcs.w3.org/hg/dap/raw-file/tip/proximity/Overview.html) specification. It can also be used as a polyfill. 
 
+## Warning
+** This is an unsupported component with an indefinite lifetime. 
+This should be used for evaluation purposes only and should not be used for production level applications.**
+
+
 # Using for testing
 
 Just do this and you are good to go: 

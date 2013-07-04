@@ -81,6 +81,7 @@ function FakeUserProximitySensor() {}
     if (globalObject.UserProximityEvent) {
         return;
     }
+    console.warn("User Proximity Events is an unsupported component with an indefinite lifetime. This should be used for evaluation purposes only and should not be used for production level applications.")
 
     var stringify, props, selfRef = this,
         callback = null,
